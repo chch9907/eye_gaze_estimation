@@ -1,0 +1,12 @@
+image_width: 1920
+image_height: 1080
+camera_matrix:
+    rows: 3
+    cols: 3
+    data: [[1657.16262957, 0, 947.53876631],  
+        [0, 1657.74978632, 534.35063589],
+        [0, 0, 1]]
+distortion_coefficients:
+    rows: 1
+    cols: 5
+    data: [0., 0., 0., 0., 0.]

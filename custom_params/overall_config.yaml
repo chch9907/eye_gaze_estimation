@@ -1,0 +1,24 @@
+_mode: eth-xgaze
+
+
+# key params to update the original config file in ptgaze/data/configs
+device: cuda
+
+face_detector:
+  mode: face_alignment_sfd
+  dlib_model_path: ./checkpoints/shape_predictor_68_face_landmarks.dat  # if use dlib
+kalman_filter:
+  measure_dim: 2
+  state_dim: 4
+  process_noise: 0.01
+  measurement_noise: 0.1
+  coeff_Q: 0.5
+  coeff_P: 10
+gaze_estimator:
+  checkpoint: ./checkpoints/eth-xgaze_resnet18.pth
+  camera_params: ./custom_params/sample_params.yaml
+demo:
+  use_camera: false
+  display_on_screen: false
+  use_face_pose: false
+  image_path: /home/user/HKUra/workspace/FotoBot/myproject/process_outputs/processed_May08_selected/frames_20fps/May08_B_actor01_pose01_L_1/0001.jpg

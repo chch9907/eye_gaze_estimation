@@ -44,8 +44,9 @@ class Demo:
         else:
             raise ValueError
 
-    def _run_on_image(self):
-        image = cv2.imread(self.config.demo.image_path)
+    def _run_on_image(self, image:np.ndarray=None):
+        if image is None:
+            image = cv2.imread(self.config.demo.image_path)
         self._process_image(image)
         if self.config.demo.display_on_screen:
             while True:
@@ -183,8 +184,8 @@ class Demo:
 
         euler_angles = face.head_pose_rot.as_euler('XYZ', degrees=True)
         pitch, yaw, roll = face.change_coordinate_system(euler_angles)
-        logger.info(f'[head] pitch: {pitch:.2f}, yaw: {yaw:.2f}, '
-                    f'roll: {roll:.2f}, distance: {face.distance:.2f}')
+        # logger.info(f'[head] pitch: {pitch:.2f}, yaw: {yaw:.2f}, '
+        #             f'roll: {roll:.2f}, distance: {face.distance:.2f}')
 
     def _draw_landmarks(self, face: Face) -> None:
         if not self.show_landmarks:
@@ -225,12 +226,12 @@ class Demo:
                 self.visualizer.draw_3d_line(
                     eye.center, eye.center + length * eye.gaze_vector)
                 pitch, yaw = np.rad2deg(eye.vector_to_angle(eye.gaze_vector))
-                logger.info(
-                    f'[{key.name.lower()}] pitch: {pitch:.2f}, yaw: {yaw:.2f}')
+                # logger.info(
+                #     f'[{key.name.lower()}] pitch: {pitch:.2f}, yaw: {yaw:.2f}')
         elif self.config.mode in ['MPIIFaceGaze', 'ETH-XGaze']:
             self.visualizer.draw_3d_line(
                 face.center, face.center + length * face.gaze_vector)
             pitch, yaw = np.rad2deg(face.vector_to_angle(face.gaze_vector))
-            logger.info(f'[face] pitch: {pitch:.2f}, yaw: {yaw:.2f}')
+            # logger.info(f'[face] pitch: {pitch:.2f}, yaw: {yaw:.2f}')
         else:
             raise ValueError

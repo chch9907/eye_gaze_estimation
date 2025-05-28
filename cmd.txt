@@ -1,0 +1,1 @@
+python3 main.py --mode eth-xgaze --image /home/user/HKUra/workspace/FotoBot/myproject/process_outputs/processed_May08_merge/frames_20fps/May08_B_actor01_pose01_L_1/0001.jpg --device cuda --face-detector face_alignment_sfd
