@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 # head coordinate: pitch: up+ (red), yaw: left+ (green), roll: right+ (blue)
 
 class GazeEstimation(Demo):
-    def __init__(self, config: DictConfig):
+    def __init__(self, key_config: DictConfig):
+        config = load_mode_config(key_config)
         super().__init__(config)
+        
         self.faces = None
         self.non_detected_num = 0
         self.kf = GazeKalmanFilter(**config.kalman_filter)
@@ -81,7 +83,7 @@ class GazeEstimation(Demo):
         else:
             return None
     
-    def get_output_angles(self,) -> float:
+    def get_output_angles(self,) -> Optional[List[float]]:
         return self._filtered_angles
     
 
@@ -126,13 +128,10 @@ def load_mode_config(cfg: DictConfig) -> DictConfig:
     config_name='overall_config'
 )
 def main(cfg: DictConfig):
-    # config_path = 'overall_config.yaml' 
-    
-    mode_cfg = load_mode_config(cfg)
-    demo = GazeEstimation(mode_cfg)
+    demo = GazeEstimation(cfg)
     demo.run()
     output_angles = demo.get_output_angles()
-    print('get output angles', output_angles)
+    print('get pitch and yaw angles', output_angles)
 
 
 if __name__ == "__main__":

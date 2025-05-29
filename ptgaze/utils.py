@@ -15,6 +15,7 @@ from .common.face_model_mediapipe import FaceModelMediaPipe
 
 logger = logging.getLogger(__name__)
 
+checkpoint_dir = 'src/checkpoints'
 
 def get_3d_face_model(config: DictConfig) -> FaceModel:
     if config.face_detector.mode == 'mediapipe':
@@ -26,7 +27,7 @@ def get_3d_face_model(config: DictConfig) -> FaceModel:
 def download_dlib_pretrained_model() -> None:
     logger.debug('Called download_dlib_pretrained_model()')
 
-    dlib_model_dir = pathlib.Path('./checkpoints').expanduser()
+    dlib_model_dir = pathlib.Path(checkpoint_dir).expanduser()
     dlib_model_dir.mkdir(exist_ok=True, parents=True)
     dlib_model_path = dlib_model_dir / 'shape_predictor_68_face_landmarks.dat'
     logger.debug(
@@ -52,7 +53,7 @@ def download_dlib_pretrained_model() -> None:
 
 def download_mpiigaze_model() -> pathlib.Path:
     logger.debug('Called _download_mpiigaze_model()')
-    output_dir = pathlib.Path('./checkpoints').expanduser()
+    output_dir = pathlib.Path(checkpoint_dir).expanduser()
     output_dir.mkdir(exist_ok=True, parents=True)
     output_path = output_dir / 'mpiigaze_resnet_preact.pth'
     if not output_path.exists():
@@ -67,7 +68,7 @@ def download_mpiigaze_model() -> pathlib.Path:
 
 def download_mpiifacegaze_model() -> pathlib.Path:
     logger.debug('Called _download_mpiifacegaze_model()')
-    output_dir = pathlib.Path('./checkpoints').expanduser()
+    output_dir = pathlib.Path(checkpoint_dir).expanduser()
     output_dir.mkdir(exist_ok=True, parents=True)
     output_path = output_dir / 'mpiifacegaze_resnet_simple.pth'
     if not output_path.exists():
@@ -82,7 +83,7 @@ def download_mpiifacegaze_model() -> pathlib.Path:
 
 def download_ethxgaze_model() -> pathlib.Path:
     logger.debug('Called _download_ethxgaze_model()')
-    output_dir = pathlib.Path('./checkpoints').expanduser()
+    output_dir = pathlib.Path(checkpoint_dir).expanduser()
     output_dir.mkdir(exist_ok=True, parents=True)
     output_path = output_dir / 'eth-xgaze_resnet18.pth'
     if not output_path.exists():
