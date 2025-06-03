@@ -176,7 +176,7 @@ class Demo:
         self.visualizer.draw_bbox(face.bbox)
 
     def _draw_head_pose(self, face: Face) -> None:
-        if not self.show_head_pose:
+        if not self.show_head_pose and face is None:
             return
         # Draw the axes of the model coordinate system
         length = self.config.demo.head_pose_axis_length
@@ -184,8 +184,8 @@ class Demo:
 
         euler_angles = face.head_pose_rot.as_euler('XYZ', degrees=True)
         pitch, yaw, roll = face.change_coordinate_system(euler_angles)
-        # logger.info(f'[head] pitch: {pitch:.2f}, yaw: {yaw:.2f}, '
-        #             f'roll: {roll:.2f}, distance: {face.distance:.2f}')
+        logger.info(f'[head] pitch: {pitch:.2f}, yaw: {yaw:.2f}, '
+                    f'roll: {roll:.2f}') #  ,distance: {face.distance:.2f}
 
     def _draw_landmarks(self, face: Face) -> None:
         if not self.show_landmarks:

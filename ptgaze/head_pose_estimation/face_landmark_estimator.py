@@ -5,6 +5,7 @@ import face_alignment
 import face_alignment.detection.sfd
 import mediapipe
 import numpy as np
+import torch
 from omegaconf import DictConfig
 
 from ..common import Face
@@ -57,10 +58,10 @@ class LandmarkEstimator:
         for bbox in bboxes:
             predictions = self.predictor(image[:, :, ::-1], bbox)
             landmarks = np.array([(pt.x, pt.y) for pt in predictions.parts()],
-                                 dtype=np.float)
+                                 dtype=np.float64)
             bbox = np.array([[bbox.left(), bbox.top()],
                              [bbox.right(), bbox.bottom()]],
-                            dtype=np.float)
+                            dtype=np.float64)
             detected.append(Face(bbox, landmarks))
         return detected
 
@@ -77,7 +78,7 @@ class LandmarkEstimator:
             predictions = []
         detected = []
         for bbox, landmarks in zip(bboxes, predictions):
-            bbox = np.array(bbox, dtype=np.float).reshape(2, 2)
+            bbox = np.array(bbox, dtype=np.float64).reshape(2, 2)
             detected.append(Face(bbox, landmarks))
         return detected
 
@@ -91,7 +92,7 @@ class LandmarkEstimator:
             predictions = []
         detected = []
         for bbox, landmarks in zip(bboxes, predictions):
-            bbox = np.array(bbox, dtype=np.float).reshape(2, 2)
+            bbox = np.array(bbox, dtype=np.float64).reshape(2, 2)
             detected.append(Face(bbox, landmarks))
         return detected
 

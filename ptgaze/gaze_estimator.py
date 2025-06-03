@@ -30,8 +30,10 @@ class GazeEstimator:
         self._head_pose_normalizer = HeadPoseNormalizer(
             self.camera, self._normalized_camera,
             self._config.gaze_estimator.normalized_camera_distance)
-        self._gaze_estimation_model = self._load_model()
-        self._transform = create_transform(config)
+
+        if config.demo.use_face_pose:
+            self._gaze_estimation_model = self._load_model()
+            self._transform = create_transform(config)  
 
     def _load_model(self) -> torch.nn.Module:
         model = create_model(self._config)

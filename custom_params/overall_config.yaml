@@ -1,12 +1,11 @@
 _mode: eth-xgaze
 
-
 # key params to update the original config file in ptgaze/data/configs
 device: cuda
 
 face_detector:
-  mode: face_alignment_sfd
-  dlib_model_path: ./checkpoints/shape_predictor_68_face_landmarks.dat  # if use dlib
+  mode: face_alignment_sfd  # face_alignment_sfd, mediapipe, dlib
+  dlib_model_path: src/checkpoints/shape_predictor_68_face_landmarks.dat  # if use dlib
 kalman_filter:
   measure_dim: 2
   state_dim: 4
@@ -15,16 +14,11 @@ kalman_filter:
   coeff_Q: 0.5
   coeff_P: 10
 gaze_estimator:
-  checkpoint: ./checkpoints/eth-xgaze_resnet18.pth
-  camera_params: ./custom_params/sample_params.yaml
+  checkpoint: src/checkpoints/eth-xgaze_resnet18.pth
+  camera_params: src/config/gaze_estimation/sample_params.yaml
 demo:
   use_camera: false
   display_on_screen: false
-  use_face_pose: false
-  image_path: /home/user/HKUra/workspace/FotoBot/myproject/process_outputs/processed_May08_selected/frames_20fps/May08_B_actor01_pose01_L_1/0001.jpg
-
-# disable hydra output
-hydra:  
-  output_subdir: null  
-  run:  
-    dir: .
+  show_head_pose: True
+  use_face_pose: true
+  image_path: infer_test.jpg

@@ -2,20 +2,20 @@ import datetime
 import logging
 import pathlib
 from typing import List, Optional, Union
-
+import time
 import cv2
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
 
-from ptgaze.common import Face, FacePartsName, Visualizer
-from ptgaze.gaze_estimator import GazeEstimator
-from ptgaze.utils import (check_path_all, download_dlib_pretrained_model,
+from .ptgaze.common import Face, FacePartsName, Visualizer
+from .ptgaze.gaze_estimator import GazeEstimator
+from .ptgaze.utils import (check_path_all, download_dlib_pretrained_model,
                     download_ethxgaze_model, download_mpiifacegaze_model,
                     download_mpiigaze_model, expanduser_all,
                     generate_dummy_camera_params)
-from ptgaze.demo import Demo
-from kalman_filter import GazeKalmanFilter
+from .ptgaze.demo import Demo
+from .kalman_filter import GazeKalmanFilter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,41 +31,81 @@ class GazeEstimation(Demo):
         self.non_detected_num = 0
         self.kf = GazeKalmanFilter(**config.kalman_filter)
         self._filtered_angles = None
+
     def _process_image(self, image: np.ndarray):  # overwrite function
         undistorted = cv2.undistort(
             image, self.gaze_estimator.camera.camera_matrix,
             self.gaze_estimator.camera.dist_coefficients)
 
-        self.visualizer.set_image(image.copy())
+
+        self.visualizer.set_image(undistorted.copy())
+            # cv2.imshow('raw image', self.visualizer.image)
+            # if cv2.waitKey(1) == ord('q'):
+            #     cv2.destroyAllWindows()
+            #     assert False
+        
+        gaze_time = 0
         faces = self.gaze_estimator.detect_faces(undistorted)
         for face in faces:
+            st = time.time()
             self.gaze_estimator.estimate_gaze(undistorted, face)
-
-        if self.config.demo.use_camera:
-            self.visualizer.image = self.visualizer.image[:, ::-1]
-        if self.writer:
-            self.writer.write(self.visualizer.image)
+            gaze_time += time.time() - st
+            if self.config.demo.display_on_screen:
+                self._draw_head_pose(self.faces)
+        # gaze_time = gaze_time / len(faces) if len(faces) else 0
+        
+        # if self.config.demo.display_on_screen:
+        #     cv2.destroyAllWindows()
+        
+        # if self.config.demo.use_camera:
+        #     self.visualizer.image = self.visualizer.image[:, ::-1]
+        # if self.writer:
+        #     self.writer.write(self.visualizer.image)
         
         #========= custom modification ========
         # store face output
         if len(faces) == 0:
             self.faces = None
         else:
-            head_pitches = []
-            # if detects multiple faces, take the one with the highest pitch angle
-            for face in faces:
-                euler_angles = face.head_pose_rot.as_euler('XYZ', degrees=True)
-                head_pitch, head_yaw, head_roll = face.change_coordinate_system(euler_angles)
-                head_pitches.append(head_pitch)
-            self.faces = faces[np.argmin(head_pitch)]  # only one face
+            # head_pitches = []
+            # # if detects multiple faces, take the one with the highest pitch angle
+            # for face in faces:
+            #     euler_angles = face.head_pose_rot.as_euler('XYZ', degrees=True)
+            #     head_pitch, head_yaw, head_roll = face.change_coordinate_system(euler_angles)
+            #     head_pitches.append(head_pitch)
+            # self.faces = faces[np.argmin(head_pitch)]  # only one face
+            self.faces = faces[0]
         
-        head_angles = self._get_head_poses()  # [pitch, yaw]
-        # gaze_angles = self._get_gaze_angles()  # [pitch, yaw]
-        self.kf.update(head_angles)
-        _filtered_angles = self.kf.get_estimate()
-        self._filtered_angles = _filtered_angles
+        # gaze_time = 0
+        # if self.config.demo.display_on_screen:
+        #     if self.faces is not None:
+        #         st = time.time()
+        #         self.gaze_estimator.estimate_gaze(undistorted, self.faces)
+        #         gaze_time = time.time() - st  #  0.4s,
+        #         self._draw_head_pose(self.faces)
+
+        #         # def _draw_gaze_vector
+        #     cv2.imshow('image', self.visualizer.image)
+        #     if cv2.waitKey(1) == ord('q'):
+        #         cv2.destroyAllWindows()
+        #         assert False
+                    
+        # head_angles = self._get_head_poses()  # [pitch, yaw]
+        gaze_angles = self._get_gaze_angles()  # [pitch, yaw]
+        # self.kf.update(gaze_angles)
+        # _filtered_angles = self.kf.get_estimate()  # 0.01s
+        _filtered_angles = gaze_angles
+        self._filtered_angles = _filtered_angles #*
         # print('raw angles', head_angles, '_filtered_angles', _filtered_angles)
+        print('gaze time', gaze_time, 'raw angle', gaze_angles, 'kalman angle', _filtered_angles
+        )
+        if self.config.demo.display_on_screen:
+            cv2.imshow('image', self.visualizer.image)
+            if cv2.waitKey(1) == ord('q'):
+                cv2.destroyAllWindows()
+                assert False
         return _filtered_angles
+
 
     #====================== custom modification =================================    
     def _get_head_poses(self,) -> Optional[List[float]]:
